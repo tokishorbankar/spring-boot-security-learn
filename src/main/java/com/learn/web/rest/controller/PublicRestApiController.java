@@ -9,10 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/public")
 public class PublicRestApiController {
 
-    @GetMapping
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("User Public Home");
-    }
 
     @GetMapping("/signing")
     public ResponseEntity<String> signIn() {

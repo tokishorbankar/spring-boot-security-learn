@@ -14,8 +14,10 @@ public class CustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf()
+                .disable()
                 .authorizeRequests()
-                .antMatchers("/api/public/**").permitAll()
+                .antMatchers("/actuator/**", "/api/public/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

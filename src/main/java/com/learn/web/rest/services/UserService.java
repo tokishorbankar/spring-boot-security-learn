@@ -1,79 +1,52 @@
 package com.learn.web.rest.services;
 
-import com.learn.web.rest.modules.UserModule;
+import com.learn.web.rest.entities.UserEntity;
+import com.learn.web.rest.exception.DataBaseTransactionException;
+import com.learn.web.rest.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private List<UserModule> userModuleList = new ArrayList<>();
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService() {
-        loadData();
+
+    public List<UserEntity> findAll() {
+        return userRepository.findAll();
     }
 
-    private void loadData() {
-        userModuleList.addAll(List.of(
-                UserModule
-                        .builder()
-                        ._id(1l)
-                        .username("kishor")
-                        .password("kishor")
-                        .email("kishor@gamil.com")
-                        .build(),
-                UserModule
-                        .builder()
-                        ._id(2l)
-                        .username("bankar")
-                        .password("bankar")
-                        .email("bankar@gamil.com")
-                        .build()
-        ));
+    public Optional<UserEntity> findById(final Long id) {
+        return userRepository.findById(id);
     }
 
-
-    /**
-     * get UserModule
-     *
-     * @param username
-     * @return UserModule
-     */
-    public Optional<UserModule> findByUsername(final String username) {
-
-        return Optional.ofNullable(userModuleList.parallelStream().filter(userModule -> userModule.getUsername().equalsIgnoreCase(username.trim())).findFirst().orElseThrow(() -> new RuntimeException("user does not exist")));
-
+    public Page<UserEntity> findAll(final Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
-    /**
-     * Save UserModule
-     *
-     * @param userModule
-     * @return Saved UserModule
-     */
-    public Optional<UserModule> save(final UserModule userModule) {
+    public UserEntity saveOrUpdate(UserEntity entity) throws DataBaseTransactionException {
+        try {
+            return userRepository.save(entity);
+        } catch (Exception e) {
 
-        Optional<UserModule> userModuleOptional = userModuleList.parallelStream().filter(user -> user.getUsername().equalsIgnoreCase(user.getUsername())).findAny();
-        if (userModuleOptional.isPresent()) {
-            throw new RuntimeException(String.format("a user already exists with that username %s", userModule.getUsername()));
+            throw new DataBaseTransactionException();
         }
-        userModuleList.add(userModule);
-        return findByUsername(userModule.getUsername());
-
     }
 
-    /**
-     * get UserModules
-     *
-     * @return List<UserModule> UserModule</UserModule>
-     */
-    public List<UserModule> findAll() {
+    public void deleteById(Long id) throws DataBaseTransactionException {
 
-        return userModuleList;
+        try {
+            userRepository.deleteById(id);
+        } catch (Exception e) {
 
+            throw new DataBaseTransactionException(id);
+        }
     }
 
 }
